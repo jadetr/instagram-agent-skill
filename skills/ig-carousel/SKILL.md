@@ -5,6 +5,8 @@ description: >-
   copy, and the 1080x1350 files to upload. Use when the user says "carousel",
   "slides", "swipe post", "turn this into a carousel", or has a list-shaped or
   step-shaped idea that would die as a single image.
+  Also in French: "un carrousel", "des slides", "transforme ça en
+  carrousel".
 ---
 
 # ig-carousel
@@ -59,6 +61,18 @@ LAST      CTA       one action. Save, comment a keyword, or follow. One.
   without you.
 - **Alt text on the cover at minimum.** It is read by screen readers and by
   Instagram.
+
+## In French
+
+Read `../ig-human/french.md` first: tu or vous, which French, typography, length.
+
+- **French needs about 15% more room.** The cover keeps its six words and each
+  slide its 25. Cut articles and auxiliaries, then split the slide, rather
+  than shrinking the type.
+- **Sentence case on headlines.** "Les 4 lignes qui m'ont sauvé", never "Les 4
+  Lignes Qui M'ont Sauvé". In caps, keep the accents.
+- **French numbers on the slides:** 18 000 €, 2,5 %, 14 h 30.
+- **Numbering** (3/8) works the same.
 
 ## Building the files
 

@@ -14,15 +14,22 @@ device, the font size and where your line breaks fall, which is exactly why
 you want a margin rather than a caption engineered to end at 125. Change it
 with --truncate if you want to test a tighter one.
 
+English and French. --lang auto (the default) reads the caption and picks. In
+French the asks are the French ones ("commente CONTRAT", "lien en bio",
+"abonne-toi"), hashtags keep their accents (#éducation), "18 000 €" counts as
+one number, and #pourtoi joins #fyp on the list of tags that describe nothing.
+
 Usage
   python3 caption.py caption.txt
   python3 caption.py caption.txt --keywords "proposal software,client contract"
   pbpaste | python3 caption.py -
   python3 caption.py caption.txt --json
+  python3 caption.py legende.txt --lang fr --keywords "contrat client,tarifs freelance"
 """
 
 import argparse
 import json
+import os
 import re
 import sys
 import textwrap
@@ -57,6 +64,75 @@ FILLER_TAGS = {"#viral", "#fyp", "#explore", "#explorepage", "#foryou", "#foryou
                "#trending", "#instagood", "#love", "#follow", "#like4like", "#reels",
                "#reelsinstagram", "#viralreels", "#instadaily"}
 
+# French. Instagram hashtags take accents, so a tag is any run of letters.
+# A keyword ask is only a keyword when it is written in capitals, which is how
+# every French creator writes it ("Commente GUIDE"), so the keyword part is
+# case-sensitive even though the verb is not.
+HASHTAG_RE_FR = re.compile(r"(?:^|\s)(#\w+)")
+CONCRETE_RE_FR = re.compile(r"[$€]\s?\d|\b\d[\d,.]*\b|(?<!^)\b[A-ZÀ-ÖØ-Þ][a-zß-öø-ÿ]{2,}\b",
+                            re.MULTILINE)
+THOUSANDS_FR = re.compile(r"(?<=\d)[ \u00a0\u202f](?=\d{3}(?!\d))")
+ASKS_FR = [
+    (re.compile(r"(?i:\bcommente(?:z)?)\s+(?:(?i:le mot)\s+)?[«\"“]?\s?[A-ZÀ-ÖØ-Þ0-9]{2,}\b"),
+     "comment a keyword"),
+    # "je te l'envoie en DM" is how the keyword gets delivered, not a second
+    # ask, so only the imperative counts.
+    (re.compile(r"(?i)\b(?:écris|écrivez|envoie|envoyez)-moi\b|\b(?:dm|mp|message)[- ]moi\b"),
+     "DM me"),
+    (re.compile(r"(?i)\b(?:enregistre|enregistrez|sauvegarde|sauvegardez|garde|gardez)"
+                r"(?:-le|-la|-les| ce| cette| ça| ces)\b"), "save this"),
+    (re.compile(r"(?i)\bpartage(?:z)?(?:-le|-la| ce| cette| ça| à)\b"), "share this"),
+    (re.compile(r"(?i)\b(?:abonne-toi|abonnez-vous|suis-moi|suivez-moi)\b"), "follow"),
+    (re.compile(r"(?i)\blien (?:en |dans (?:ma |la |mon )?)bio\b"), "link in bio"),
+    (re.compile(r"(?i)\b(?:swipe|glisse|glissez|fais défiler|faites défiler)\b"), "swipe or tap"),
+    (re.compile(r"(?i)\b(?:dis|dites)-moi\b|\b(?:tu|vous) en pens(?:es|ez) quoi\b"
+                r"|\b(?:lequel|laquelle|lesquels)\b|\btu ferais quoi\b|\bvous feriez quoi\b"),
+     "answer a question"),
+]
+FILLER_TAGS_FR = FILLER_TAGS | {
+    "#pourtoi", "#pourtoii", "#pourtoiii", "#pourtoipage", "#pourvous", "#tendance",
+    "#tendances", "#abonnetoi", "#abonnezvous", "#jaime", "#instafrance", "#reelsfrance",
+    "#viralfrance", "#explorer", "#instaquebec", "#reelsquebec",
+}
+
+FR_MARKERS = {
+    "le", "la", "les", "des", "du", "de", "une", "et", "est", "sont", "pas",
+    "que", "qui", "dans", "pour", "avec", "sur", "ce", "cette", "ces", "je",
+    "tu", "il", "elle", "nous", "vous", "mon", "ma", "mes", "ton", "ta", "tes",
+    "notre", "votre", "leur", "au", "aux", "mais", "ou", "donc", "ça", "très",
+    "tout", "tous", "comme", "fait", "être", "avoir", "j", "qu", "ai", "parce",
+    "l", "c", "n", "ne", "me", "te", "se", "moi", "toi", "par", "sans", "chez",
+    "aussi", "contre", "quoi", "pourquoi", "comment", "rien", "jamais",
+}
+EN_MARKERS = {
+    "the", "and", "is", "are", "was", "were", "not", "that", "which", "in",
+    "for", "with", "this", "these", "you", "your", "he", "she", "we", "they",
+    "my", "his", "her", "our", "their", "of", "to", "it", "but", "or", "so",
+    "just", "like", "be", "have", "do", "what", "how", "because", "i",
+}
+
+
+def detect_lang(text):
+    """'fr' when the text reads as French, else 'en'.
+
+    French function words, plus lower-case words carrying a French accent
+    (arrête, ça, déjà). Capitalised ones are left out so "I moved to Montréal"
+    stays English. Ties and silence go to English.
+    """
+    toks = re.findall(r"[^\W\d_]+", text)
+    low = [t.lower() for t in toks]
+    fr = sum(1 for t in low if t in FR_MARKERS)
+    fr += sum(1 for t in toks if t[0].islower() and t not in FR_MARKERS
+              and re.search(r"[àâçéèêëîïôûùüœ]", t))
+    en = sum(1 for t in low if t in EN_MARKERS)
+    return "fr" if fr > en else "en"
+
+
+def resolve_lang(choice, text):
+    """--lang beats IG_LANG beats reading the text. fr-CA and fr_FR are fr."""
+    choice = (choice or os.environ.get("IG_LANG") or "auto").lower()[:2]
+    return choice if choice in ("en", "fr") else detect_lang(text)
+
 
 def visible_window(text, cut):
     """What the feed shows. Instagram cuts mid-word, so this does too."""
@@ -76,20 +152,27 @@ def render_box(window, truncated, out=sys.stdout, width=52):
     print("  +" + "-" * (width + 2 - len(tail) - 2) + f" {tail} " + "+", file=out)
 
 
-def analyse(text, cut=TRUNCATE, keywords=None):
+def analyse(text, cut=TRUNCATE, keywords=None, lang="en"):
+    fr = lang == "fr"
+    hashtag_re = HASHTAG_RE_FR if fr else HASHTAG_RE
+    concrete_re = CONCRETE_RE_FR if fr else CONCRETE_RE
+    ask_list = ASKS_FR if fr else ASKS
+    filler_tags = FILLER_TAGS_FR if fr else FILLER_TAGS
     text = text.rstrip()
     stripped = text.strip()
     chars = len(stripped)
     lines = [l for l in stripped.split("\n")]
     first_line = lines[0].strip() if lines else ""
-    tags = HASHTAG_RE.findall(stripped)
+    tags = hashtag_re.findall(stripped)
     mentions = MENTION_RE.findall(stripped)
     links = LINK_RE.findall(stripped)
     emoji = EMOJI_RE.findall(stripped)
     window = visible_window(stripped, cut)
     truncated = chars > cut
-    asks = [name for pattern, name in ASKS if pattern.search(stripped)]
-    filler = [t for t in tags if t.lower() in FILLER_TAGS]
+    asks = [name for pattern, name in ask_list if pattern.search(stripped)]
+    filler = [t for t in tags if t.lower() in filler_tags]
+    # The concreteness check reads "18 000 €" as one number, not two.
+    concrete_window = THOUSANDS_FR.sub("", window) if fr else window
     keywords = [k.strip() for k in (keywords or []) if k.strip()]
 
     checks = []
@@ -113,9 +196,9 @@ def analyse(text, cut=TRUNCATE, keywords=None):
     else:
         add("FIRST LINE", "PASS", f"{len(first_line)} characters, lands whole")
 
-    add("HOOK IS CONCRETE", "PASS" if CONCRETE_RE.search(window) else "WARN",
-        f"{len(CONCRETE_RE.findall(window))} number(s) or name(s) in the visible window"
-        + ("" if CONCRETE_RE.search(window) else " - nothing checkable before the tap"))
+    add("HOOK IS CONCRETE", "PASS" if concrete_re.search(concrete_window) else "WARN",
+        f"{len(concrete_re.findall(concrete_window))} number(s) or name(s) in the visible window"
+        + ("" if concrete_re.search(concrete_window) else " - nothing checkable before the tap"))
 
     if len(tags) > HASHTAG_LIMIT:
         add("HASHTAGS", "FAIL", f"{len(tags)} tags, over Instagram's cap of {HASHTAG_LIMIT}. "
@@ -176,12 +259,14 @@ def analyse(text, cut=TRUNCATE, keywords=None):
         "hashtags": tags, "mentions": mentions, "links": links,
         "emoji": len(emoji), "asks": asks,
         "checks": checks, "verdict": verdict,
+        **({"lang": lang} if fr else {}),
     }
 
 
 def render(a, out=sys.stdout):
     head = (f"CAPTION LINT  ·  {a['characters']} / {a['limit']} chars  ·  "
-            f"{len(a['hashtags'])} hashtags  ·  {len(a['asks'])} ask(s)")
+            f"{len(a['hashtags'])} hashtags  ·  {len(a['asks'])} ask(s)"
+            + ("  ·  français" if a.get("lang") == "fr" else ""))
     print("\n" + head, file=out)
     print("=" * max(len(head), 62), file=out)
     render_box(a["visible"], a["truncated"], out=out)
@@ -199,10 +284,13 @@ def main():
                     help=f"characters shown before '... more' (default {TRUNCATE})")
     ap.add_argument("--keywords", default="", help="comma-separated terms you want to be found for")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--lang", choices=["auto", "en", "fr"],
+                    help="language of the caption (default: IG_LANG, else read from the text)")
     args = ap.parse_args()
 
     raw = sys.stdin.read() if args.input == "-" else open(args.input, encoding="utf-8").read()
-    a = analyse(raw, cut=args.truncate, keywords=args.keywords.split(","))
+    lang = resolve_lang(args.lang, raw)
+    a = analyse(raw, cut=args.truncate, keywords=args.keywords.split(","), lang=lang)
     if args.json:
         print(json.dumps(a, indent=2, ensure_ascii=False))
     else:

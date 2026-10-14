@@ -5,6 +5,8 @@ description: >-
   the ones worth answering, sorted by which ones are. Use when the user pastes
   their comments, says "reply to these", "handle my comments", "someone said X
   on my reel", or is dealing with a critic, a hater or a lead in the comments.
+  Also in French: "réponds à ces commentaires", "gère mes commentaires",
+  "quelqu'un a dit X sous mon reel".
 ---
 
 # ig-reply
@@ -69,6 +71,17 @@ what was promised. If the user has automation set up through Instagram's own
 tools or an approved partner, say so and let it run; if not, the replies are
 manual and that is fine at this volume. Never bulk-DM people who did not
 comment.
+
+## In French
+
+Read `../ig-human/french.md` first: tu or vous, which French, typography, length.
+
+- **Reply in the commenter's language and register.** They wrote tu, reply tu;
+  vous, reply vous. A thread under one post can hold both.
+- **The KEYWORD bucket includes typos and missing accents.** "contrat",
+  "Contrat", "CONTRAT !" are all the keyword.
+- **Support replies stay short in French too.** "Merci, ça fait plaisir" is
+  enough. Three lines of thanks is the same tell in any language.
 
 ## Output
 

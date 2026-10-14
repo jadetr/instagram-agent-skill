@@ -6,6 +6,8 @@ description: >-
   when the user says "DM this person", "what do I send them", "outreach
   message", "how do I follow up", "pitch this brand", or is reaching out to
   someone specific.
+  Also in French: "écris un DM", "quoi lui envoyer", "message de
+  prospection", "relance".
 ---
 
 # ig-dm
@@ -101,6 +103,19 @@ Two. That is the number.
   pressure.
 
 Then stop. A third converts nobody and costs the relationship.
+
+## In French
+
+Read `../ig-human/french.md` first: tu or vous, which French, typography, length.
+
+- **Tu or vous comes from them.** Mirror their bio, their captions, their
+  comment. With no signal: tu for a creator, vous for a brand account in
+  France, tu in Quebec.
+- **Keep it to two to four sentences.** French DMs balloon into politeness
+  formulas ("Je me permets de vous contacter...", "N'hésitez pas à revenir
+  vers moi"). Cut them. They are the French "Hope this finds you well".
+- **The follow-ups are still two,** at +4 and +10 days. "Je me permets de vous
+  relancer" is the French "just bumping this" and is not allowed either.
 
 ## Never
 

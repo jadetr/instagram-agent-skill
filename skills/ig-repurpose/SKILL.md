@@ -6,6 +6,8 @@ description: >-
   says "repurpose this", "turn this into reels", "I have a video/podcast/
   transcript", "cut this up", or pastes something long and wants it on
   Instagram.
+  Also in French: "recycle ce contenu", "transforme ça en reels", "j'ai une
+  vidéo / un podcast".
 ---
 
 # ig-repurpose
@@ -65,6 +67,21 @@ every time. Cut on the sentence, not on the breath.
 Order across the week so the strongest claim goes first, the story lands
 midweek, and the mechanism goes last, when the people who liked the earlier
 ones are watching for it.
+
+## In French
+
+Read `../ig-human/french.md` first: tu or vous, which French, typography, length.
+
+- **The source and the posts can be in different languages.** An English
+  podcast can become French reels. Then each post is written in French from
+  the extract, not translated sentence by sentence, and every number is
+  converted to how the audience says it (€ or $, metric units, French date
+  order).
+- **A quotable line does not survive translation.** If the line is only good
+  in the original language, it is not a quotable line for this audience. Drop
+  it or rewrite the idea.
+- **Footage in the other language** needs French captions burned in, and the
+  hook still has to be said or shown in French in the first two seconds.
 
 ## Output
 

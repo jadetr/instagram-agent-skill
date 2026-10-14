@@ -5,6 +5,8 @@ description: >-
   person with an opinion, not a bot. Use when the user pastes a post or a reel
   and wants a comment, says "comment on this", "engage with this", "what do I
   say here", or wants a batch for their daily engagement round.
+  Also in French: "commente ce post", "quoi répondre sous ce reel", "un
+  commentaire".
 ---
 
 # ig-comment
@@ -77,6 +79,18 @@ We tried that and it cost us a renewal that was otherwise fine.
 
 Post the first. It concedes something and it has a number in it.
 ```
+
+## In French
+
+Read `../ig-human/french.md` first: tu or vous, which French, typography, length.
+
+- **Mirror the creator's register.** If their caption says tu, comment in tu.
+  If they write vous, so do you. Never both.
+- **The French invisible openers:** "Trop bien", "Tellement vrai", "Merci pour
+  ce partage", "Top 👏", "Je valide", "Grave". Same rule as in English: never
+  open with them.
+- **Comment in the post's language,** even if the user posts in the other one.
+  A French comment under an English reel reads as a bot.
 
 ## Batch mode
 

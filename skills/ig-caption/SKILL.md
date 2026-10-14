@@ -6,6 +6,8 @@ description: >-
   before it goes out. Use when the user says "write the caption", "caption this",
   "what do I put in the description", has a reel or a carousel ready and needs
   the text, or asks about hashtags.
+  Also in French: "écris la légende", "une légende pour ce reel", "quels
+  hashtags".
 ---
 
 # ig-caption
@@ -95,6 +97,20 @@ python3 caption.py draft.txt --keywords "client proposals,agency pricing"
   4 per 100 characters.
 - **Alt text is worth 20 seconds.** For carousels and photos, write it. It is
   read by screen readers and by Instagram.
+
+## In French
+
+Read `../ig-human/french.md` first: tu or vous, which French, typography, length.
+
+- `caption.py` reads French on its own (`--lang fr` to force it). It knows the
+  French asks ("Commente CONTRAT", "lien en bio", "abonne-toi", "enregistre ce
+  post"), counts "18 000 €" as one number and treats #pourtoi as filler.
+- **The fold is the same 125 characters and French is longer.** The visible
+  line has to say less, not run on further.
+- **The keyword has no accent.** "Commente CONTRAT", never "Commente RÉSUMÉ":
+  people type without accents and the auto-reply misses them.
+- **Search terms in French,** as people type them, inside a normal sentence.
+- **French hashtags** if the audience searches in French. Still five at most.
 
 ## The loop
 

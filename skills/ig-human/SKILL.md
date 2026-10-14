@@ -7,6 +7,8 @@ description: >-
   user says humanize, "does this sound like AI", "remove the em dashes",
   "de-slop this", "this sounds like ChatGPT", or before any caption, script,
   comment, reply or DM is shown to the user.
+  Also in French: "humanise ce texte", "ça sonne IA", "enlève les tirets",
+  "ça fait ChatGPT".
 ---
 
 # ig-human
@@ -73,6 +75,36 @@ a sentence needs judgement:
 That list is your job. Rewrite each flagged line by hand, keeping the meaning,
 then re-run `detect.py`. This is the part that moves the score from REVIEW to
 PASS, and it is the part a script cannot do.
+
+## In French
+
+Both scripts read French. `--lang auto` is the default, `--lang fr` forces it.
+The French lexicon is the `fr` block of `slop.json`: about 250 terms written
+for French as it is actually generated (plonger dans, tirer parti de, booster,
+crucial, incontournable, véritable, en effet, il est important de noter que,
+n'hésitez pas, arrête de scroller, dans cette vidéo je vais te montrer,
+abonne-toi pour plus) and 17 structural tells, including "Ce n'est pas juste X,
+c'est Y" and "Non seulement... mais aussi".
+
+What is different in French:
+
+- **Elision is repaired.** "de booster" becomes "d'augmenter", not "de
+  augmenter". Inflected forms are listed one by one, so a swap keeps gender and
+  number.
+- **The writer's punctuation habit is kept.** A space before `? !` (France) or
+  none (Quebec, most phones): whichever the draft does, the output does.
+- **Inclusive writing is left alone.** A middle dot inside a word is not a
+  bullet.
+- **Mixing tu and vous is flagged.** It is the most common error in generated
+  French.
+- **`detect.py` reads spoken French** ("ça", "c'est pas", "t'as") where it
+  reads contractions in English, and a fine space before `;:!?` is correct
+  French typography, not a fingerprint.
+
+The rest of what makes French copy sound generated (calques, Title Case,
+English typography, the wrong register) is not something a regex can fix
+safely. It is in `french.md`, in this folder. Read it, then rewrite by hand
+like any structural tell.
 
 ## The five checks
 

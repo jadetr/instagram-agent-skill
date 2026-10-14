@@ -6,6 +6,8 @@ description: >-
   the user says "stories", "what do I post on my story", "story sequence",
   "poll idea", "I have nothing to story about", or wants to sell something
   without making a post about it.
+  Also in French: "mes stories", "quoi mettre en story", "un sondage", "une
+  séquence de stories".
 ---
 
 # ig-story
@@ -76,6 +78,20 @@ Automated keyword DM replies are a real, supported feature for professional
 accounts, through Instagram's own tools and approved partners. Bulk DMing
 people who did not interact is not, and it is what gets accounts restricted.
 The rule is simple: **they act first, then you reply.**
+
+## In French
+
+Read `../ig-human/french.md` first: tu or vous, which French, typography, length.
+
+- **Sticker names as the user sees them** in the French app: Sondage, Questions,
+  Quiz, Curseur (the emoji slider), Lien, Compte à rebours, À toi de jouer
+  (Add yours).
+- **Talk to one person in tu,** unless voice.md says vous. Stories are the
+  closest thing to a DM, and nobody vouvoie in a DM they started.
+- **Spoken French** for anything said to camera: "on", "ça", the dropped "ne"
+  if the user drops it.
+- **Poll answers short enough to fit**: "Oui / Pas encore", not "Oui, ça m'est
+  arrivé / Non, jamais".
 
 ## Output
 

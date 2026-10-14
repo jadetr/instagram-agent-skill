@@ -5,6 +5,8 @@ description: >-
   engage with. Use when the user says "plan my week", "what should I post",
   "content calendar", "I have nothing to post about", or wants a posting
   schedule and an engagement list.
+  Also in French: "planifie ma semaine", "quoi poster", "calendrier de
+  contenu".
 ---
 
 # ig-plan
@@ -73,6 +75,20 @@ Anchor times to the audience's timezone, not the user's, if those differ.
   DM, and never pitch in a comment.
 
 Hand the list to `/ig-comment`.
+
+## In French
+
+Read `../ig-human/french.md` first: tu or vous, which French, typography, length.
+
+- **Times are the audience's,** not the user's: a creator in Montreal selling
+  to France posts on Paris time, six hours ahead.
+- **One language per post.** If the account serves both, the plan says which
+  language each slot is in, and why.
+- **Write the plan in the language you are talking in.** Hook formulas by
+  number and by their French name from `hooks.json` ("#3 Personne ne te le
+  dit").
+- **The engagement list** follows the language of the audience the user wants,
+  not the language they post in.
 
 ## Output
 

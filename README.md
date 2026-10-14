@@ -17,6 +17,9 @@ see it.
 
 **Nothing gets posted until you say yes.** These skills write. You post.
 
+**In English or in French.** Every skill writes in either, and every script
+reads either. See [In French](#in-french).
+
 ## Install
 
 Paste this into Claude:
@@ -219,6 +222,69 @@ SWIPE FILE  ·  4 reels  ·  4 accounts  ·  baseline: account median
            "in this video I am going to show you my morning routine"
 ```
 
+## In French
+
+Every skill writes French as French, not as a translation of the English, and
+every script reads it. `--lang auto` is the default on all five tools and
+decides from the text, so English drafts run exactly as they always did: the
+English output is byte-for-byte unchanged. Force it with `--lang fr`, or set
+`IG_LANG=fr` once if you write in French.
+
+```bash
+python3 humanize.py brouillon.txt --report
+python3 hookscore.py accroches.txt
+python3 caption.py legende.txt --keywords "contrats clients"
+```
+
+What is French about it, and not just translated:
+
+- **A French slop lexicon**, 253 terms and 17 structural tells, written for the
+  French that models actually produce: plonger dans, tirer parti de, booster,
+  incontournable, véritable, en effet, il est important de noter que,
+  n'hésitez pas, "Ce n'est pas juste X, c'est Y", arrête de scroller, dans
+  cette vidéo je vais te montrer, abonne-toi pour plus.
+- **Elision gets repaired** after a swap. "de booster" becomes "d'augmenter",
+  not "de augmenter".
+- **Your punctuation habit is kept.** A space before `? !` the way France
+  writes it, or none the way Quebec and most phones do. The humanizer does
+  whatever your draft does.
+- **Mixing tu and vous is flagged**, because it is the most common error in
+  generated French.
+- **French numbers.** "18 000 €" is one number, "vingt mille euros" is
+  concrete, and the beat sheet runs at 175 words a minute.
+- **The 26 hook formulas, written in French**, each with its own example,
+  on-screen line and match pattern. "Personne ne te dit que", not "Nobody tells
+  you that" run through a translator.
+- **A writing guide**, [`french.md`](skills/ig-human/french.md), for what a
+  regex cannot fix: calques, Title Case, tu or vous, France or Quebec, how long
+  French runs on screen.
+
+```
+HOOK RANKING  ·  français
+==============================================================================
+->  81.4 STRONG  J'ai perdu 18 000 € à cause d'un seul contrat mal rédigé.
+        weakest: ADDRESS (70)
+    80.0 STRONG  Personne ne te dit que tes 30 premiers reels sont censés fa...
+        weakest: STAKES (70)
+    54.4 OK      Arrête de scroller si tu veux percer sur Instagram en 2026 🔥
+        weakest: STAKES (70)
+        dealbreaker: Opens with "arrête de scroller". Asking for attention
+                     proves you have not earned it.
+        dealbreaker: Emoji in the hook. On-screen text at hook size has room
+                     for words or for an emoji, not both.
+    51.2 OK      Mes devis me prenaient cinq heures. Maintenant, vingt minutes.
+        weakest: STAKES (20)
+     8.2 WEAK    Salut tout le monde, aujourd'hui je voulais parler de strat...
+        weakest: FRONTLOAD (0)
+        dealbreaker: Greeting. Nobody came to the feed to be greeted.
+```
+
+The script reports stay in English; the skills give you the receipt in the
+language you are talking to them in. One honest limit, in the same spirit as
+the next section: the French panels use the English calibration. Nobody has
+re-run the 74-hook measurement on French hooks yet, so a French score is the
+same sanity check the English one is, and no more than that.
+
 ## What I actually measured, which is the part worth reading
 
 I did not want to publish a hook scorer on the claim that it feels right, so I
@@ -314,11 +380,14 @@ doing when you read it, Instagram is right.
 
 ```
 skills/ig-reel/hooks.json          26 hook formulas: template, example, on-screen line,
-                                   what it is for, how it gets ruined, and a match regex
+                                   what it is for, how it gets ruined, and a match regex,
+                                   each also written in French
 skills/ig-reel/hookscore.py        the five-property hook panel
 skills/ig-reel/beats.py            script to timed beat sheet
 skills/ig-caption/caption.py       the truncation preview and the caption linter
-skills/ig-human/slop.json          the lexicon: 154 terms, 18 invisible classes, 16 tells
+skills/ig-human/slop.json          the lexicon: 154 terms, 18 invisible classes, 16 tells,
+                                   plus a French block of 253 terms and 17 tells
+skills/ig-human/french.md          what changes when the post is in French
 skills/ig-human/humanize.py        the three cleaning passes
 skills/ig-human/detect.py          the five-check panel
 skills/ig-viral/swipe.py           outlier ranking and formula classification

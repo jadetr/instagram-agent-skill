@@ -22,6 +22,21 @@ the words out loud. A line you would never say is not a draft, it is a retake.
   not "creatives")
 - **What I sell:**
 
+## Language
+
+Every skill writes in English or French. This section decides which, so fill
+it in even if the answer is "English".
+
+- **I post in:** (English / French / both. If both, which posts get which)
+- **Which French:** (France / Quebec / Belgium / Switzerland / other)
+- **Tu or vous with my audience:** (on Instagram it is almost always tu)
+- **Space before ? and !:** (yes, like France / no, like most of Quebec)
+- **Anglicisms I actually say:** (reel, story, DM, hook, call... and the ones
+  I never say)
+
+If you post in French, set `IG_LANG=fr` in your shell and every script reads
+French without being told. The skills read this section either way.
+
 ## What I sound like
 
 - **Three of my own reels or captions that sound most like me:** (paste them)

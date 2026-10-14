@@ -19,10 +19,17 @@ with a header line naming the columns:
 If you only have `followers`, leave median out and the script says so.
 `hook` is the first line of the reel, spoken or on screen, in their words.
 
+French reels work the same way. The header can be in French too (compte,
+abonnés, médiane, vues, accroche), and each row's language is read from its
+own hook, so a batch that mixes French and English accounts is classified with
+the French formulas for the French rows and the English ones for the rest.
+Force one language for every row with --lang.
+
 Usage
   python3 swipe.py captured.tsv
   python3 swipe.py captured.tsv --out ~/.claude/instagram/swipe.md
   python3 swipe.py captured.tsv --json
+  python3 swipe.py capture_fr.tsv --lang fr
 """
 
 import argparse
@@ -35,6 +42,49 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 HOOKS = os.path.join(HERE, "..", "ig-reel", "hooks.json")
 WORD_RE = re.compile(r"[A-Za-z0-9$%'’-]+")
+WORD_RE_FR = re.compile(r"[\w$%€'’-]+")
+THOUSANDS_FR = re.compile(r"(?<=\d)[ \u00a0\u202f.](?=\d{3}(?!\d))")
+COLUMNS_FR = {"compte": "account", "abonnés": "followers", "abonnes": "followers",
+              "médiane": "median", "mediane": "median", "vues": "views",
+              "accroche": "hook", "hook": "hook"}
+
+FR_MARKERS = {
+    "le", "la", "les", "des", "du", "de", "une", "et", "est", "sont", "pas",
+    "que", "qui", "dans", "pour", "avec", "sur", "ce", "cette", "ces", "je",
+    "tu", "il", "elle", "nous", "vous", "mon", "ma", "mes", "ton", "ta", "tes",
+    "notre", "votre", "leur", "au", "aux", "mais", "ou", "donc", "ça", "très",
+    "tout", "tous", "comme", "fait", "être", "avoir", "j", "qu", "ai", "parce",
+    "l", "c", "n", "ne", "me", "te", "se", "moi", "toi", "par", "sans", "chez",
+    "aussi", "contre", "quoi", "pourquoi", "comment", "rien", "jamais",
+}
+EN_MARKERS = {
+    "the", "and", "is", "are", "was", "were", "not", "that", "which", "in",
+    "for", "with", "this", "these", "you", "your", "he", "she", "we", "they",
+    "my", "his", "her", "our", "their", "of", "to", "it", "but", "or", "so",
+    "just", "like", "be", "have", "do", "what", "how", "because", "i",
+}
+
+
+def detect_lang(text):
+    """'fr' when the text reads as French, else 'en'.
+
+    French function words, plus lower-case words carrying a French accent
+    (arrête, ça, déjà). Capitalised ones are left out so "I moved to Montréal"
+    stays English. Ties and silence go to English.
+    """
+    toks = re.findall(r"[^\W\d_]+", text)
+    low = [t.lower() for t in toks]
+    fr = sum(1 for t in low if t in FR_MARKERS)
+    fr += sum(1 for t in toks if t[0].islower() and t not in FR_MARKERS
+              and re.search(r"[àâçéèêëîïôûùüœ]", t))
+    en = sum(1 for t in low if t in EN_MARKERS)
+    return "fr" if fr > en else "en"
+
+
+def forced_lang(choice):
+    """--lang, else IG_LANG, else None: read each row on its own."""
+    choice = (choice or os.environ.get("IG_LANG") or "auto").lower()[:2]
+    return choice if choice in ("en", "fr") else None
 
 try:                                              # optional: score the hooks too
     sys.path.insert(0, os.path.join(HERE, "..", "ig-reel"))
@@ -43,13 +93,18 @@ except Exception:                                 # ig-viral copied on its own
     score_hook = None
 
 
-def load_formulas(path):
+def load_formulas(path, lang="en"):
+    """The formulas in classify order. French uses each formula's fr block."""
     try:
         d = json.load(open(path, encoding="utf-8"))
     except Exception:
         return None
     by_id = {h["id"]: h for h in d["hooks"]}
     order = d.get("classify_order") or sorted(by_id)
+    if lang == "fr":
+        return [(by_id[i]["id"], by_id[i]["fr"]["name"],
+                 re.compile(by_id[i]["fr"]["match"], re.IGNORECASE))
+                for i in order if i in by_id and "fr" in by_id[i]]
     return [(by_id[i]["id"], by_id[i]["name"],
              re.compile(by_id[i]["match"], re.IGNORECASE)) for i in order if i in by_id]
 
@@ -69,6 +124,7 @@ def read_rows(path):
     if not lines:
         return []
     head = [c.strip().lower() for c in lines[0].split("\t")]
+    head = [COLUMNS_FR.get(c, c) for c in head]
     if "views" in head and "hook" in head:
         cols, body = head, lines[1:]
     else:
@@ -91,16 +147,23 @@ def read_rows(path):
     return rows
 
 
-def analyse(rows, formulas):
+def analyse(rows, formulas, force=None):
+    """`formulas` is {lang: formulas}. Each row is read in its own language."""
     used_median = any(r.get("median") for r in rows)
     for r in rows:
+        lang = force or detect_lang(r["hook"])
         base = r.get("median") or r.get("followers") or 0
         r["baseline"] = base
         r["outlier"] = round(r["views"] / base, 2) if base else None
-        r["formula_id"], r["formula"] = classify(r["hook"], formulas)
-        r["words"] = len(WORD_RE.findall(r["hook"]))
+        r["formula_id"], r["formula"] = classify(r["hook"], formulas.get(lang))
+        if lang == "fr":
+            r["lang"] = lang
+            r["words"] = len(WORD_RE_FR.findall(THOUSANDS_FR.sub("", r["hook"])))
+        else:
+            r["words"] = len(WORD_RE.findall(r["hook"]))
         if score_hook:
-            _, overall, verdict, _ = score_hook(r["hook"])
+            _, overall, verdict, _ = (score_hook(r["hook"], lang) if lang == "fr"
+                                      else score_hook(r["hook"]))
             r["hook_score"], r["hook_verdict"] = round(overall, 1), verdict
         else:
             r["hook_score"], r["hook_verdict"] = None, None
@@ -177,6 +240,8 @@ def main():
     ap.add_argument("--hooks", default=HOOKS, help="path to ig-reel/hooks.json")
     ap.add_argument("--out", help="also write the swipe file as markdown here")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--lang", choices=["auto", "en", "fr"],
+                    help="language of every hook (default: IG_LANG, else read row by row)")
     args = ap.parse_args()
 
     rows = read_rows(args.input)
@@ -185,7 +250,8 @@ def main():
               file=sys.stderr)
         sys.exit(2)
     formulas = load_formulas(args.hooks)
-    a = analyse(rows, formulas)
+    a = analyse(rows, {"en": formulas, "fr": load_formulas(args.hooks, "fr")},
+                force=forced_lang(args.lang))
     if not formulas:
         print("note: hooks.json not found, formulas not named. Pass --hooks.", file=sys.stderr)
     if score_hook is None:

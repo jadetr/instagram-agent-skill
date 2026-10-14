@@ -6,6 +6,8 @@ description: >-
   Instagram insights or past posts and asks "what's working", "why did this
   flop", "read my analytics", "audit my content", or wants to know what to do
   more of.
+  Also in French: "analyse mes stats", "pourquoi ce reel a floppé", "audit
+  de mon contenu".
 ---
 
 # ig-audit
@@ -70,6 +72,16 @@ better than inventing one.
 problem.** A reel that gets no views is a hook problem. Separate the two before
 recommending anything. If non-follower reach is high and follows per reach is
 low, stop rewriting hooks and go to `/ig-profile`.
+
+## In French
+
+Read `../ig-human/french.md` first: tu or vous, which French, typography, length.
+
+- **Write the audit in the language you are talking in.** Name formulas by
+  number and by their French name from `hooks.json` if the posts are French.
+- **For a bilingual account, split the ranking by language** before looking
+  for a pattern. French and English posts reach different audiences, and
+  mixing them hides what works in each.
 
 ## Output
 

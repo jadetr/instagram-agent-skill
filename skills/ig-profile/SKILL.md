@@ -6,6 +6,8 @@ description: >-
   grid. Use when the user says "optimize my profile", "fix my bio", "score my
   Instagram", "why don't people follow me", or pastes their profile and asks how
   it reads.
+  Also in French: "optimise mon profil", "corrige ma bio", "note mon
+  Instagram".
 ---
 
 # ig-profile
@@ -70,6 +72,21 @@ are allowed; two is already a menu and a menu converts worse than a door.
 **6. Grid covers.** The first nine at thumbnail size. Reel covers get chosen,
 not left as whatever frame one was. Four words of text on a cover makes a grid
 readable in one glance.
+
+## In French
+
+Read `../ig-human/french.md` first: tu or vous, which French, typography, length.
+
+- **The name field is still 30 characters and French is longer.** The searched
+  words are the French ones the audience types: "Dana Ruiz | Modèles de devis",
+  "Coach freelance | Tarifs".
+- **The bio is 150 characters.** One register (tu or vous) and one idea; a
+  French bio tempts people into three subordinate clauses.
+- **Highlight names in French,** for the questions a buyer asks: Tarifs,
+  Résultats, Comment ça marche, À propos. Short, because they are truncated
+  under the circle.
+- **Score the French as French.** Title Case, English typography or a tu/vous
+  mix in the bio costs points on bio first line.
 
 ## Output
 

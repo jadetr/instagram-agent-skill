@@ -7,6 +7,8 @@ description: >-
   short-form video script, a hook, a voiceover, "make a reel about X", "what
   should I say in this video", or is about to record and does not have the
   first line yet.
+  Also in French: "écris-moi un reel", "script de reel", "une accroche",
+  "quoi dire dans ma vidéo".
 ---
 
 # ig-reel
@@ -126,6 +128,24 @@ Write it separately, every time. It is read before it is heard.
   leave `{{your number}}` in the script and flag it.
 - **Do not write a script around a trending audio the user cannot use.** If the
   idea needs the user's own voice, say so.
+
+## In French
+
+Read `../ig-human/french.md` first: tu or vous, which French, typography, length.
+
+- **Use the `fr` block of each formula** in `hooks.json`: the formula written in
+  French, with its own example and on-screen line, plus `rules_fr` at the top
+  of the file. Write from those. Do not translate the English example.
+- **The scripts read French on their own.** `hookscore.py` and `beats.py`
+  detect it; add `--lang fr` if a hook is too short to tell. In French a hook
+  gets 5 to 14 words and the beat sheet runs at 175 wpm unless voice.md gives
+  the user's own pace.
+- **Spoken French.** "On", "ça", and the dropped "ne" if the user drops it.
+  Read every line out loud in your head in their accent. If it sounds read, it
+  is.
+- **On-screen caps keep their accents**: "ÇA M'A COÛTÉ 18 000 €". Six words
+  still means six words, so cut articles before ideas.
+- **The receipt** goes to the user in the language you are talking in.
 
 ## Example
 

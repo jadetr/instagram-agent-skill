@@ -8,6 +8,8 @@ description: >-
   people posting in my niche", "reverse engineer this account", "build me a
   swipe file", "why is this reel doing numbers", or asks what to make next and
   has no evidence to answer with.
+  Also in French: "trouve des vidéos virales", "qu'est-ce qui marche en ce
+  moment", "fais-moi un swipe file".
 ---
 
 # ig-viral
@@ -146,6 +148,27 @@ with the formula id already chosen.
 
 Never hand back "make a reel like this one". Hand back a hook line they could
 say tomorrow.
+
+## In French
+
+Read `../ig-human/french.md` first: tu or vous, which French, typography, length.
+
+- **`swipe.py` reads each row in its own language** and names French hooks with
+  the French formulas. The header can be in French too:
+
+  ```
+  compte	abonnés	médiane	vues	accroche
+  @quelquun	48 000	11 000	412 000	personne ne te dit que tes 30 premiers reels vont flopper
+  ```
+
+  `--lang fr` forces French for every row.
+- **Collect French accounts for a French audience.** Formats cross the
+  language barrier; hooks mostly do not. An English account is a good adjacent
+  source for a format and a bad one for a line.
+- **For YouTube Shorts in French**, ask for the French captions:
+  `--sub-langs "fr.*"`.
+- **Write "your version" in French from the formula,** not by translating the
+  English reel that used it.
 
 ## Output
 

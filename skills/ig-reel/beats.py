@@ -13,16 +13,23 @@ are close enough to plan an edit and not a substitute for recording it. Set
 your own rate with --wpm once you have timed yourself reading a script out
 loud: most people land between 150 and 200, and the default here is 165.
 
+English and French. --lang auto (the default) reads the script and picks. In
+French the default rate is 175 wpm, "18 000 €" is one spoken word-group rather
+than two, French function words are ignored when checking the loop, and an
+elided word still counts ("l'erreur" echoes "erreur").
+
 Usage
   python3 beats.py script.txt
   python3 beats.py script.txt --target 30
   python3 beats.py script.txt --wpm 185 --target 45
   pbpaste | python3 beats.py -
   python3 beats.py script.txt --json
+  python3 beats.py script_fr.txt --lang fr --target 30
 """
 
 import argparse
 import json
+import os
 import re
 import sys
 
@@ -37,19 +44,90 @@ STOPWORDS = {
     "will", "can", "at", "as", "by", "from", "out", "up", "off", "one", "all",
 }
 
+# French.
+WORD_RE_FR = re.compile(r"[\w$%€'’-]+(?:,\d+)?")
+CONCRETE_RE_FR = re.compile(r"[$€]\s?\d|\b\d[\d,.]*\b|(?<!^)\b[A-ZÀ-ÖØ-Þ][a-zß-öø-ÿ]{2,}\b",
+                            re.MULTILINE)
+THOUSANDS_FR = re.compile(r"(?<=\d)[ \u00a0\u202f.](?=\d{3}(?!\d))")
+ELISION_FR = re.compile(r"^(?:[ldjmntsc]|qu|lorsqu|puisqu|jusqu)['’]")
+STOPWORDS_FR = {
+    "le", "la", "les", "un", "une", "des", "du", "de", "et", "ou", "mais",
+    "si", "à", "au", "aux", "en", "dans", "sur", "pour", "par", "avec", "que",
+    "qui", "ce", "cette", "ces", "ça", "c'est", "est", "sont", "était", "être",
+    "a", "ai", "as", "ont", "avoir", "tu", "te", "toi", "ton", "ta", "tes",
+    "vous", "votre", "vos", "je", "me", "moi", "mon", "ma", "mes", "nous",
+    "notre", "nos", "on", "il", "elle", "ils", "elles", "lui", "leur", "y",
+    "ne", "pas", "plus", "donc", "alors", "juste", "fait", "faire", "tout",
+    "tous", "même", "comme", "très", "c", "l", "d", "j", "qu", "n", "s", "€", "$", "%",
+}
+DEFAULT_WPM = {"en": 165, "fr": 175}
+
+FR_MARKERS = {
+    "le", "la", "les", "des", "du", "de", "une", "et", "est", "sont", "pas",
+    "que", "qui", "dans", "pour", "avec", "sur", "ce", "cette", "ces", "je",
+    "tu", "il", "elle", "nous", "vous", "mon", "ma", "mes", "ton", "ta", "tes",
+    "notre", "votre", "leur", "au", "aux", "mais", "ou", "donc", "ça", "très",
+    "tout", "tous", "comme", "fait", "être", "avoir", "j", "qu", "ai", "parce",
+    "l", "c", "n", "ne", "me", "te", "se", "moi", "toi", "par", "sans", "chez",
+    "aussi", "contre", "quoi", "pourquoi", "comment", "rien", "jamais",
+}
+EN_MARKERS = {
+    "the", "and", "is", "are", "was", "were", "not", "that", "which", "in",
+    "for", "with", "this", "these", "you", "your", "he", "she", "we", "they",
+    "my", "his", "her", "our", "their", "of", "to", "it", "but", "or", "so",
+    "just", "like", "be", "have", "do", "what", "how", "because", "i",
+}
+
+
+def detect_lang(text):
+    """'fr' when the text reads as French, else 'en'.
+
+    French function words, plus lower-case words carrying a French accent
+    (arrête, ça, déjà). Capitalised ones are left out so "I moved to Montréal"
+    stays English. Ties and silence go to English.
+    """
+    toks = re.findall(r"[^\W\d_]+", text)
+    low = [t.lower() for t in toks]
+    fr = sum(1 for t in low if t in FR_MARKERS)
+    fr += sum(1 for t in toks if t[0].islower() and t not in FR_MARKERS
+              and re.search(r"[àâçéèêëîïôûùüœ]", t))
+    en = sum(1 for t in low if t in EN_MARKERS)
+    return "fr" if fr > en else "en"
+
+
+def resolve_lang(choice, text):
+    """--lang beats IG_LANG beats reading the text. fr-CA and fr_FR are fr."""
+    choice = (choice or os.environ.get("IG_LANG") or "auto").lower()[:2]
+    return choice if choice in ("en", "fr") else detect_lang(text)
+
+
 HOOK_WINDOW = 3.0        # seconds. Past this, the thumb has already decided.
 MAX_BEAT = 4.0           # seconds on one idea with no change on screen.
 ABSTRACT_RUN = 3         # beats in a row with nothing checkable in them.
 
 
-def words(text):
+def words(text, lang="en"):
     # "$18,000" is one word when it is spoken, so it is one word here too.
+    if lang == "fr":
+        return WORD_RE_FR.findall(THOUSANDS_FR.sub("", text))
     return WORD_RE.findall(re.sub(r"(?<=\d),(?=\d)", "", text))
 
 
-def pretty(token):
-    """Put the thousands separator back for display."""
-    return re.sub(r"(\d)(?=(\d{3})+$)", r"\1,", token)
+def loop_words(text, lang="en"):
+    """The words that can carry a loop: no function words, elision removed."""
+    if lang == "fr":
+        out = set()
+        for w in words(text, lang):
+            w = ELISION_FR.sub("", w.lower().replace("’", "'")).strip("'")
+            if w and w not in STOPWORDS_FR:
+                out.add(w)
+        return out
+    return {w.lower() for w in words(text) if w.lower() not in STOPWORDS}
+
+
+def pretty(token, lang="en"):
+    """Put the thousands separator back for display. French uses a space."""
+    return re.sub(r"(\d)(?=(\d{3})+$)", r"\1 " if lang == "fr" else r"\1,", token)
 
 
 def tc(seconds):
@@ -57,13 +135,13 @@ def tc(seconds):
     return f"{int(m)}:{s:04.1f}"
 
 
-def split_beats(raw, wps):
+def split_beats(raw, wps, lang="en"):
     """One line is one beat, unless a line is too long to be one."""
     beats = []
     for line in [l.strip() for l in raw.splitlines()]:
         if not line:
             continue
-        if len(words(line)) / wps <= MAX_BEAT * 1.5:
+        if len(words(line, lang)) / wps <= MAX_BEAT * 1.5:
             beats.append(line)
             continue
         # Long paragraph: break it at sentence ends so the timings mean
@@ -72,7 +150,7 @@ def split_beats(raw, wps):
         buf = ""
         for part in parts:
             candidate = (buf + " " + part).strip()
-            if buf and len(words(candidate)) / wps > MAX_BEAT:
+            if buf and len(words(candidate, lang)) / wps > MAX_BEAT:
                 beats.append(buf)
                 buf = part
             else:
@@ -82,15 +160,17 @@ def split_beats(raw, wps):
     return beats
 
 
-def analyse(raw, wpm=165, target=None):
+def analyse(raw, wpm=None, target=None, lang="en"):
+    wpm = wpm or DEFAULT_WPM[lang]
     wps = wpm / 60.0
-    beats = split_beats(raw, wps)
+    beats = split_beats(raw, wps, lang)
     if not beats:
         return None
+    concrete_re = CONCRETE_RE_FR if lang == "fr" else CONCRETE_RE
 
     rows, clock = [], 0.0
     for i, text in enumerate(beats):
-        n = len(words(text))
+        n = len(words(text, lang))
         dur = n / wps
         rows.append({
             "n": i + 1,
@@ -98,7 +178,7 @@ def analyse(raw, wpm=165, target=None):
             "dur": round(dur, 2),
             "words": n,
             "text": text,
-            "concrete": len(CONCRETE_RE.findall(text)),
+            "concrete": len(concrete_re.findall(THOUSANDS_FR.sub("", text) if lang == "fr" else text)),
             "label": "",
             "flags": [],
         })
@@ -146,9 +226,9 @@ def analyse(raw, wpm=165, target=None):
             run, start = 0, None
 
     # Does the last line hand you back to the first one?
-    first = {w.lower() for w in words(rows[0]["text"]) if w.lower() not in STOPWORDS}
-    last = {w.lower() for w in words(rows[-1]["text"]) if w.lower() not in STOPWORDS}
-    loop = sorted(pretty(w) for w in first & last)
+    first = loop_words(rows[0]["text"], lang)
+    last = loop_words(rows[-1]["text"], lang)
+    loop = sorted(pretty(w, lang) for w in first & last)
     if loop:
         notes.append(f"Loops: the last beat repeats \"{', '.join(loop[:3])}\" from the hook. "
                      "Second watches are free reach.")
@@ -167,6 +247,7 @@ def analyse(raw, wpm=165, target=None):
                          "or shoot it short. Short is usually right.")
 
     return {
+        **({"lang": lang} if lang != "en" else {}),
         "wpm": wpm, "target": target,
         "total_seconds": round(total, 2),
         "total_words": sum(r["words"] for r in rows),
@@ -177,7 +258,8 @@ def analyse(raw, wpm=165, target=None):
 
 def render(a, out=sys.stdout):
     head = (f"BEAT SHEET  ·  {a['total_words']} words  ·  ~{a['total_seconds']:.1f}s "
-            f"at {a['wpm']} wpm" + (f"  ·  target {a['target']}s" if a["target"] else ""))
+            f"at {a['wpm']} wpm" + (f"  ·  target {a['target']}s" if a["target"] else "")
+            + ("  ·  français" if a.get("lang") == "fr" else ""))
     print("\n" + head, file=out)
     print("=" * max(len(head), 72), file=out)
     for r in a["beats"]:
@@ -194,13 +276,15 @@ def render(a, out=sys.stdout):
 def main():
     ap = argparse.ArgumentParser(description="Time a Reel script into a beat sheet.")
     ap.add_argument("input", nargs="?", default="-", help="script file, or - for stdin")
-    ap.add_argument("--wpm", type=float, default=165, help="speaking rate (default 165)")
+    ap.add_argument("--wpm", type=float, help="speaking rate (default 165, or 175 in French)")
     ap.add_argument("--target", type=float, help="target length in seconds")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--lang", choices=["auto", "en", "fr"],
+                    help="language of the script (default: IG_LANG, else read from the text)")
     args = ap.parse_args()
 
     raw = sys.stdin.read() if args.input == "-" else open(args.input, encoding="utf-8").read()
-    a = analyse(raw, wpm=args.wpm, target=args.target)
+    a = analyse(raw, wpm=args.wpm, target=args.target, lang=resolve_lang(args.lang, raw))
     if not a:
         print("empty script", file=sys.stderr)
         sys.exit(2)
