@@ -2291,6 +2291,21 @@
         "find": "devenir la meilleure version de vous-même",
         "replace": "progresser",
         "family": "nouns"
+      },
+      {
+        "find": "scrolle pas",
+        "replace": "",
+        "family": "openers"
+      },
+      {
+        "find": "scrollez pas",
+        "replace": "",
+        "family": "openers"
+      },
+      {
+        "find": "personne en parle",
+        "replace": "peu de gens le font",
+        "family": "openers"
       }
     ],
     "structures": [
@@ -2368,7 +2383,7 @@
       },
       {
         "id": "stop-scroll",
-        "regex": "(?im)^\\s*(?:arrête(?:z)? de (?:scroller|défiler)|ne (?:scrolle|scrollez|défile|défilez) pas|stop(?:pe)? (?:au |le )?scroll)",
+        "regex": "(?im)^\\s*(?:arrête(?:z)? de (?:scroller|défiler)|(?:ne )?(?:scrolle|scrollez|défile|défilez) pas|stop(?:pe)? (?:au |le )?scroll)",
         "name": "\"Arrête de scroller\" opener",
         "fix": "The scroll-stop has to be the claim itself. Asking for attention is the tell that you have not earned it."
       },

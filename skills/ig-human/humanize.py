@@ -286,6 +286,7 @@ def pass_lexical(text, lex, lang="en", spaced=False):
         text = re.sub(r",\s*([,.])", r"\1", text)
         text = re.sub(r",[ \t]*([;:!?])", (" " if spaced else "") + r"\1", text)
         text = re.sub(r"([;:])[ \t]*,", r"\1", text)   # "simple : en effet, c'est"
+        text = re.sub(r"([.!?])[ \t]*,[ \t]*", r"\1 ", text)  # "simple. En effet, ça"
     else:
         text = re.sub(r"\s+([,.;:!?])", r"\1", text)
         text = re.sub(r",\s*([,.;:!?])", r"\1", text)  # an em dash became a comma,

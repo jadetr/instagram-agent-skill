@@ -181,7 +181,7 @@ ME_RE_FR = re.compile(r"\b(?:je|me|moi|mon|ma|mes|nous|notre|nos|on)\b|\b[jm]['�
 HASHTAG_RE_FR = re.compile(r"(?:^|\s)#\w+")
 
 DEALBREAKERS_FR = [
-    (re.compile(r"(?i)^\s*(?:arrête(?:z)? de (?:scroller|défiler)|ne (?:scrolle|scrollez|défile|défilez) pas"
+    (re.compile(r"(?i)^\s*(?:arrête(?:z)? de (?:scroller|défiler)|(?:ne )?(?:scrolle|scrollez|défile|défilez) pas"
                 r"|stop(?:pe)? (?:au |le )?scroll)"),
      "Opens with \"arrête de scroller\". Asking for attention proves you have not earned it."),
     (re.compile(r"(?i)\b(?:dans (?:cette|la) vidéo|dans ce reel|dans la vidéo d['’]aujourd['’]hui"

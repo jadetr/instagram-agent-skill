@@ -75,6 +75,14 @@ THOUSANDS_FR = re.compile(r"(?<=\d)[ \u00a0\u202f](?=\d{3}(?!\d))")
 ASKS_FR = [
     (re.compile(r"(?i:\bcommente(?:z)?)\s+(?:(?i:le mot)\s+)?[«\"“]?\s?[A-ZÀ-ÖØ-Þ0-9]{2,}\b"),
      "comment a keyword"),
+    # "Écris TOTEM en commentaire", "Tape en commentaire le mot GUIDE": the
+    # verb is not "commente", so the keyword only counts next to "en commentaire".
+    (re.compile(r"(?i:\b(?:écris|écrivez|tape|tapez|mets|mettez|laisse|laissez|écrire|taper))\s+"
+                r"(?:(?i:le mot)\s+)?[«\"“]?\s?[A-ZÀ-ÖØ-Þ0-9]{2,}\b\s?[»\"”]?\s+"
+                r"(?i:en (?:commentaires?|comm?s?)\b|dans les commentaires|sous (?:ce|le) post)"
+                r"|(?i:\b(?:écris|écrivez|tape|tapez|mets|mettez|laisse|laissez))\s+"
+                r"(?i:en commentaires?|dans les commentaires)\s+(?:(?i:le mot)\s+)?[«\"“]?\s?[A-ZÀ-ÖØ-Þ0-9]{2,}\b"),
+     "comment a keyword"),
     # "je te l'envoie en DM" is how the keyword gets delivered, not a second
     # ask, so only the imperative counts.
     (re.compile(r"(?i)\b(?:écris|écrivez|envoie|envoyez)-moi\b|\b(?:dm|mp|message)[- ]moi\b"),
@@ -169,7 +177,7 @@ def analyse(text, cut=TRUNCATE, keywords=None, lang="en"):
     emoji = EMOJI_RE.findall(stripped)
     window = visible_window(stripped, cut)
     truncated = chars > cut
-    asks = [name for pattern, name in ask_list if pattern.search(stripped)]
+    asks = list(dict.fromkeys(name for pattern, name in ask_list if pattern.search(stripped)))
     filler = [t for t in tags if t.lower() in filler_tags]
     # The concreteness check reads "18 000 €" as one number, not two.
     concrete_window = THOUSANDS_FR.sub("", window) if fr else window

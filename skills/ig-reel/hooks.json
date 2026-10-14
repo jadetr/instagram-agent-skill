@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "note": "26 hook formulas for Reels. A Reel has two hooks that fire at the same time and they are not the same sentence: the first thing you say, and the first thing on screen. The spoken hook has about two seconds. The on-screen hook has about one, because it is read before it is heard. Every formula here carries a template, a filled example, the on-screen version, what it is for, and the way it usually gets ruined. Each formula also carries a `match` regex, so the same vocabulary can name a hook found in the wild and not only write a new one. Walk them in `classify_order`, which is most specific first, case-insensitive. Every formula also carries an `fr` block: the same formula written natively in French (name, template, example, on-screen line) and its own French `match` regex, used by swipe.py and hookscore when the hook is French. `rules_fr` adds what changes when the script is in French.",
+  "note": "26 hook formulas for Reels. A Reel has two hooks that fire at the same time and they are not the same sentence: the first thing you say, and the first thing on screen. The spoken hook has about two seconds. The on-screen hook has about one, because it is read before it is heard. Every formula here carries a template, a filled example, the on-screen version, what it is for, and the way it usually gets ruined. Each formula also carries a `match` regex, so the same vocabulary can name a hook found in the wild and not only write a new one. Walk them in `classify_order`, which is most specific first, case-insensitive. Every formula also carries an `fr` block: the same formula written natively in French (name, template, example, on-screen line) and its own French `match` regex, used by swipe.py and hookscore when the hook is French. The French patterns take spoken French as well as written: the \"ne\" is optional (\"Personne te dit\", \"Fais pas ça\", \"On mettait jamais\"). `rules_fr` adds what changes when the script is in French.",
   "rules": [
     "Write the spoken line and the on-screen line separately. On screen is the shorter, blunter one, six words or fewer, no punctuation it does not need.",
     "No setup. The video starts at the sentence you would normally reach at second six.",
@@ -41,7 +41,7 @@
         "template": "Arrête de {action courante}. Fais {alternative} à la place.",
         "example": "Arrête de poster trois fois par jour. Poste deux fois et réponds à chaque commentaire pendant une heure.",
         "on_screen": "ARRÊTE DE POSTER CHAQUE JOUR",
-        "match": "^\\s*(?:arrête|arrêtez|stop|stoppe|jamais)\\b|^\\s*(?:ne|n['’])\\s*\\w+\\s+(?:jamais|plus|pas)\\b|\\bquitte (?:ton|ta|tes)\\b"
+        "match": "^\\s*(?:arrête|arrêtez|stop|stoppe|jamais)\\b|^\\s*(?:ne|n['’])\\s*\\w+\\s+(?:jamais|plus|pas)\\b|^\\s*(?:fais|faites|poste|postez|dis|dites|achète|achetez|envoie|envoyez|mets|mettez|utilise|utilisez|commence|commencez|prends|prenez|écris|écrivez|oublie|oubliez|accepte|acceptez|signe|signez|paie|paye|payez|lance|lancez)\\s+(?:pas|jamais|plus)\\b|\\bquitte (?:ton|ta|tes)\\b"
       }
     },
     {
@@ -58,7 +58,7 @@
         "template": "Personne ne te dit que {la vérité qui dérange sur ce que tu veux}.",
         "example": "Personne ne te dit que tes 30 premiers reels sont censés faire un flop.",
         "on_screen": "TES 30 PREMIERS VONT FLOPPER",
-        "match": "\\b(?:personne|on)\\s+ne\\s+(?:te\\s+|vous\\s+|t['’]|nous\\s+)?(?:le\\s+|l['’])?(?:dit|dira|a jamais dit|parle|explique|apprend|raconte|montre)\\b|\\bpersonne n['’]en parle\\b|\\bce que personne ne\\b"
+        "match": "\\bpersonne\\s+(?:ne\\s+|n['’])?(?:te\\s+|vous\\s+|t['’]|nous\\s+)?(?:le\\s+|l['’])?(?:dit|dira|a jamais dit|parle|explique|apprend|raconte|montre)\\b|\\bon\\s+(?:ne\\s+|n['’])?(?:te\\s+|vous\\s+|t['’]|nous\\s+)?(?:le\\s+|l['’])?(?:dit|dira|parle|explique|apprend|raconte|montre)\\s+(?:pas|jamais)\\b|\\bpersonne (?:n['’])?en parle\\b|\\bce que personne\\b"
       }
     },
     {
@@ -126,7 +126,7 @@
         "template": "Tu fais {le truc} de travers, et ce n'est pas ta faute. {La correction}.",
         "example": "Tu écris mal tes légendes, et ce n'est pas ta faute. Instagram cache tout après la première ligne.",
         "on_screen": "TES LÉGENDES SONT COUPÉES",
-        "match": "\\b(?:la plus grosse |la grosse |la pire |l['’]|une |cette )erreur (?:que|de|des|qu['’])|\\b(?:tu|vous) (?:le |la |les )?(?:fais|faites)\\b[^.!?]*\\b(?:mal|de travers|à l['’]envers)\\b|\\btu t['’]y prends mal\\b|\\bce n['’]est pas (?:ta|votre) faute\\b"
+        "match": "\\b(?:la plus grosse |la grosse |la pire |l['’]|une |cette )erreur (?:que|de|des|qu['’])|\\b(?:tu|vous) (?:le |la |les )?(?:fais|faites)\\b[^.!?]*\\b(?:mal|de travers|à l['’]envers)\\b|\\btu t['’]y prends mal\\b|\\b(?:ce n['’]est|c['’]est) pas (?:ta|votre) faute\\b"
       }
     },
     {
@@ -143,7 +143,7 @@
         "template": "J'ai passé {N ans} {dans le milieu}. Voici ce qu'on ne disait jamais tout haut.",
         "example": "J'ai vendu des contrats d'agence pendant six ans. Voici ce qu'on ne mettait jamais dans la proposition.",
         "on_screen": "6 ANS DE L'INTÉRIEUR",
-        "match": "\\bj['’](?:ai (?:passé|travaillé|bossé|dirigé|été)|étais)\\b[^.!?]*\\b(?:\\d+|\\w+)\\s*\\+?\\s*ans\\b|\\bon ne (?:disait|montrait|mettait) jamais\\b|\\bje (?:vends|vendais|gère|dirige)\\b[^.!?]*(?:[$€]\\s?\\d|\\d\\s?€)"
+        "match": "\\bj['’](?:ai (?:passé|travaillé|bossé|dirigé|été)|étais)\\b[^.!?]*\\b(?:\\d+|\\w+)\\s*\\+?\\s*ans\\b|\\bon (?:ne |n['’])?(?:disait|montrait|mettait|avouait) (?:jamais|pas)\\b|\\bje (?:vends|vendais|gère|dirige)\\b[^.!?]*(?:[$€]\\s?\\d|\\d\\s?€)"
       }
     },
     {
